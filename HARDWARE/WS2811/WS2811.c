@@ -8,163 +8,162 @@ static u8 Light_blue=0;
 static u8 Light_red=0;
 static u8 Light_green=0;
 
-//==================================WS2811³õÊ¼»¯======================================//
+//==================================WS2811åˆå§‹åŒ–======================================//
 void WS2811_Init(void)
 {
-		GPIO_InitTypeDef  GPIO_InitStructure;
+	GPIO_InitTypeDef  GPIO_InitStructure;
 
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);//Ê¹ÄÜGPIOAÊ±ÖÓ
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);//ä½¿èƒ½GPIOAæ—¶é’Ÿ
 
-		//GPIOA0³õÊ¼»¯ÉèÖÃ
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;//ÆÕÍ¨Êä³öÄ£Ê½
-		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;//ÍÆÍìÊä³ö
-		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;//100MHz
-		GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;//ÏÂÀ­À­
-		GPIO_Init(GPIOA, &GPIO_InitStructure);//³õÊ¼»¯
+	//GPIOA0åˆå§‹åŒ–è®¾ç½®
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;//æ™®é€šè¾“å‡ºæ¨¡å¼
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;//æ¨æŒ½è¾“å‡º
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;//100MHz
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;//ä¸‹æ‹‰æ‹‰
+	GPIO_Init(GPIOA, &GPIO_InitStructure);//åˆå§‹åŒ–
 	
-    Reset();
+	Reset();
 	
-		TIM3_Int_Init(1000,84);                   //TIM3 1KHZ
+	TIM3_Int_Init(1000,84);                   //TIM3 1KHZ
 }
-//==================================Í¨ÓÃ¶¨Ê±Æ÷3³õÊ¼»¯================================//
-//arr£º×Ô¶¯ÖØ×°Öµ£psc£ºÊ±ÖÓÔ¤·ÖÆµÊı     ¶¨Ê±Æ÷Òç³öÊ±¼ä¼ÆËã·½·¨:Tout=((arr+1)*(psc+1))/Ft us.
+//==================================é€šç”¨å®šæ—¶å™¨3åˆå§‹åŒ–================================//
+//arrï¼šè‡ªåŠ¨é‡è£…å€¼î–¶scï¼šæ—¶é’Ÿé¢„åˆ†é¢‘æ•°     å®šæ—¶å™¨æº¢å‡ºæ—¶é—´è®¡ç®—æ–¹æ³•:Tout=((arr+1)*(psc+1))/Ft us.
 void TIM3_Int_Init(u16 arr,u16 psc)
 {
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
 	
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3,ENABLE);  ///Ê¹ÄÜTIM3Ê±ÖÓ
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3,ENABLE);  ///ä½¿èƒ½TIM3æ—¶é’Ÿ
 	
-  TIM_TimeBaseInitStructure.TIM_Period = arr; 	//×Ô¶¯ÖØ×°ÔØÖµ
-	TIM_TimeBaseInitStructure.TIM_Prescaler=psc;  //¶¨Ê±Æ÷·ÖÆµ
-	TIM_TimeBaseInitStructure.TIM_CounterMode=TIM_CounterMode_Up; //ÏòÉÏ¼ÆÊıÄ£Ê½
+	TIM_TimeBaseInitStructure.TIM_Period = arr; 	//è‡ªåŠ¨é‡è£…è½½å€¼
+	TIM_TimeBaseInitStructure.TIM_Prescaler=psc;  //å®šæ—¶å™¨åˆ†é¢‘
+	TIM_TimeBaseInitStructure.TIM_CounterMode=TIM_CounterMode_Up; //å‘ä¸Šè®¡æ•°æ¨¡å¼
 	TIM_TimeBaseInitStructure.TIM_ClockDivision=TIM_CKD_DIV1; 
 	
-	TIM_TimeBaseInit(TIM3,&TIM_TimeBaseInitStructure);//³õÊ¼»¯TIM3
+	TIM_TimeBaseInit(TIM3,&TIM_TimeBaseInitStructure);//åˆå§‹åŒ–TIM3
 	
-	TIM_ITConfig(TIM3,TIM_IT_Update,ENABLE); //ÔÊĞí¶¨Ê±Æ÷3¸üĞÂÖĞ¶Ï
-	TIM_Cmd(TIM3,ENABLE); //Ê¹ÄÜ¶¨Ê±Æ÷3
+	TIM_ITConfig(TIM3,TIM_IT_Update,ENABLE); //å…è®¸å®šæ—¶å™¨3æ›´æ–°ä¸­æ–­
+	TIM_Cmd(TIM3,ENABLE); //ä½¿èƒ½å®šæ—¶å™¨3
 	
-	NVIC_InitStructure.NVIC_IRQChannel=TIM3_IRQn; //¶¨Ê±Æ÷3ÖĞ¶Ï
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0x01; //ÇÀÕ¼ÓÅÏÈ¼¶1
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0x03; //×ÓÓÅÏÈ¼¶3
+	NVIC_InitStructure.NVIC_IRQChannel=TIM3_IRQn; //å®šæ—¶å™¨3ä¸­æ–­
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0x01; //æŠ¢å ä¼˜å…ˆçº§1
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0x03; //å­ä¼˜å…ˆçº§3
 	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 	
 }
 
-//¶¨Ê±Æ÷3ÖĞ¶Ï·şÎñº¯Êı
+//å®šæ—¶å™¨3ä¸­æ–­æœåŠ¡å‡½æ•°
 void TIM3_IRQHandler(void)
 {
-	if(TIM_GetITStatus(TIM3,TIM_IT_Update)==SET){ //Òç³öÖĞ¶Ï
-			TIM3_count++;
-			if((TIM3_count%(LIGHT_TIME*3))==0){
-					Light_blue=1;
-					Light_red=0;
-					Light_green=0;
-			}
-			else if((TIM3_count%(LIGHT_TIME*3))==(LIGHT_TIME*1)){
-					Light_blue=0;
-					Light_red=1;
-					Light_green=0;
-			}
-			else if((TIM3_count%(LIGHT_TIME*3))==(LIGHT_TIME*2)){
-					Light_blue=0;
-					Light_red=0;
-					Light_green=1;
-			}
-			else if(TIM3_count>(LIGHT_TIME*3))
-				TIM3_count=0;
+	if(TIM_GetITStatus(TIM3,TIM_IT_Update)==SET){ //æº¢å‡ºä¸­æ–­
+		TIM3_count++;
+		if((TIM3_count%(LIGHT_TIME*3))==0){
+			Light_blue=1;
+			Light_red=0;
+			Light_green=0;
+		}
+		else if((TIM3_count%(LIGHT_TIME*3))==(LIGHT_TIME*1)){
+			Light_blue=0;
+			Light_red=1;
+			Light_green=0;
+		}
+		else if((TIM3_count%(LIGHT_TIME*3))==(LIGHT_TIME*2)){
+			Light_blue=0;
+			Light_red=0;
+			Light_green=1;
+		}
+		else if(TIM3_count>(LIGHT_TIME*3))
+		TIM3_count=0;
 	}
-	TIM_ClearITPendingBit(TIM3,TIM_IT_Update);  //Çå³ıÖĞ¶Ï±êÖ¾Î»
+	TIM_ClearITPendingBit(TIM3,TIM_IT_Update);  //æ¸…é™¤ä¸­æ–­æ ‡å¿—ä½
 }
 
-//===============¸ßËÙ±àÂëÄ£Ê½BIT0(¸ßµçÆ½Ê±¼ä:0.5us µÍµçÆ½Ê±¼ä:2us )===============//
+//===============é«˜é€Ÿç¼–ç æ¨¡å¼BIT0(é«˜ç”µå¹³æ—¶é—´:0.5us ä½ç”µå¹³æ—¶é—´:2us )===============//
 void l_dat0(void)
 {
-		WS2811_CONTROL|=HIGH;
-		delay(3);
-		WS2811_CONTROL&=~HIGH;
-		delay(15);
+	WS2811_CONTROL|=HIGH;
+	delay(3);
+	WS2811_CONTROL&=~HIGH;
+	delay(15);
 }
 
-//===============¸ßËÙ±àÂëÄ£Ê½BIT1(¸ßµçÆ½Ê±¼ä:5us µÍµçÆ½Ê±¼ä:0.5us)================//
+//===============é«˜é€Ÿç¼–ç æ¨¡å¼BIT1(é«˜ç”µå¹³æ—¶é—´:5us ä½ç”µå¹³æ—¶é—´:0.5us)================//
 void l_dat1(void)
 {
-		WS2811_CONTROL|=HIGH;
-		delay(16);
-		WS2811_CONTROL&=~HIGH;
-		delay(2);
+	WS2811_CONTROL|=HIGH;
+	delay(16);
+	WS2811_CONTROL&=~HIGH;
+	delay(2);
 }
 
-//===================================RGB¸´Î»====================================//
+//===================================RGBå¤ä½====================================//
 void Reset(void)
 {
-		WS2811_CONTROL&=~HIGH;
-		delay(2000);
+	WS2811_CONTROL&=~HIGH;
+	delay(2000);
 }
 
-//============================·¢ËÍRGB»Ò¶ÈÊı¾İ===================================//
-void send_single_data(const u8 *data) 											//Êı¾İ¸ñÊ½:R7~R0~G7~G0~B7~B0
+//============================å‘é€RGBç°åº¦æ•°æ®===================================//
+void send_single_data(const u8 *data) 											//æ•°æ®æ ¼å¼:R7~R0~G7~G0~B7~B0
 {
-		s8 i=0,j=0;
-		for(i = 0; i < 3; i++){
-				for(j = 7; j > -1; j--){
-						if((*(data+i)&(HIGH<<j))==(HIGH<<j)) 
-							l_dat1(); 
-						else 
-							l_dat0();
-				}
+	s8 i=0,j=0;
+	for(i = 0; i < 3; i++){
+		for(j = 7; j > -1; j--){
+			if((*(data+i)&(HIGH<<j))==(HIGH<<j)) 
+				l_dat1(); 
+			else 
+				l_dat0();
 		}
+	}
 }
 
 void send_string_data(const u8 *data,u8 size) 											
 {
-		u8 i=0;
-		for(i=0;i<size;i++)
-		{
-			send_single_data(data);	 
-		}
-    Reset();
+	u8 i=0;
+	for(i=0;i<size;i++){
+		send_single_data(data);	 
+	}
+	Reset();
 }
-//==================================RGB³£ÁÁ=====================================//
-void RGB_open(const u8 *data) //RGB³£ÁÁ
+//==================================RGBå¸¸äº®=====================================//
+void RGB_open(const u8 *data) //RGBå¸¸äº®
 {
-		send_single_data(data);
+	send_single_data(data);
 }
 
-//=================================RGBÉÁË¸========= BLUE RED GREEN ===============//
+//=================================RGBé—ªçƒ========= BLUE RED GREEN ===============//
 void RGB_Lighting(void)
 {
-		if(Light_blue){
-				Gard[0]=255;
-				Gard[1]=0;
-				Gard[2]=0;
-				send_string_data(Gard,SEND_TIMES);              //·¢ËÍ´ÎÊıÓëµÆ¹Ü³¤¶ÈÓĞ¹Ø
-			  Light_blue=0;
-		}
-		else if(Light_red){
-			Gard[0]=0;
-			Gard[1]=255;
-			Gard[2]=0;
-			send_string_data(Gard,SEND_TIMES); 
-			Light_red=0;
-		}
-		else if(Light_green){
-				Gard[0]=0;
-				Gard[1]=0;
-				Gard[2]=255;
-				send_string_data(Gard,SEND_TIMES); 
-				Light_green=0;
-		}
+	if(Light_blue){
+		Gard[0]=255;
+		Gard[1]=0;
+		Gard[2]=0;
+		send_string_data(Gard,SEND_TIMES);              //å‘é€æ¬¡æ•°ä¸ç¯ç®¡é•¿åº¦æœ‰å…³
+		Light_blue=0;
+	}
+	else if(Light_red){
+		Gard[0]=0;
+		Gard[1]=255;
+		Gard[2]=0;
+		send_string_data(Gard,SEND_TIMES); 
+		Light_red=0;
+	}
+	else if(Light_green){
+		Gard[0]=0;
+		Gard[1]=0;
+		Gard[2]=255;
+		send_string_data(Gard,SEND_TIMES); 
+		Light_green=0;
+	}
 }
 
-//=================================ÑÓÊ±========= BLUE RED GREEN ===============//
+//=================================å»¶æ—¶========= BLUE RED GREEN ===============//
 static void delay(unsigned long int us)
 {
-		unsigned long int j;
-		for (j = 5*us; j> 0; j--) ;
+	unsigned long int j;
+	for (j = 5*us; j> 0; j--) ;
 }
 
 
