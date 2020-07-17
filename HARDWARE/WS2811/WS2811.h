@@ -5,7 +5,7 @@
 #define WS2811_CONTROL PAout(0)   	
 #define HIGH 1
 #define SEND_TIMES 20
-#define LIGHT_TIME 500         ////单位：秒
+#define LIGHT_TIME 500         //单位：秒
 
 //////////////////////控制函数声明/////////////////////////////////////
 void WS2811_Init(void);
